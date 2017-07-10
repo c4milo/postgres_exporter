@@ -1,11 +1,12 @@
 NAME := postgres-exporter
 VERSION := v0.2.2
+LDFLAGS := -ldflags "-X main.Version=$(VERSION)"
 
 help: ## Shows this help text
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 dev: ## Builds dev binary
-	go build -ldflags "-X main.Version=$(VERSION)"
+	go build $(LDFLAGS)
 
 build: ## Builds binary for all supported platforms
 	@rm -rf build/
@@ -18,7 +19,7 @@ build: ## Builds binary for all supported platforms
 	./...
 
 install: ## Locally installs dev binary
-	go install -ldflags "-X main.Version=$(VERSION)"
+	go install $(LDFLAGS)
 
 deps: ## Installs dev dependencies
 	go get github.com/c4milo/github-release
@@ -42,4 +43,7 @@ release: dist ## Pushes up distributable artifacts to Github Releases
 	github-release c4milo/$(NAME) $(VERSION) "$$(git rev-parse --abbrev-ref HEAD)" "**Changelog**<br/>$$changelog" 'dist/*'; \
 	git pull
 
-.PHONY: build dev dist install deps release
+clean: ## Runs go clean
+	go clean $(LDFLAGS)
+
+.PHONY: build dev clean dist install deps release
